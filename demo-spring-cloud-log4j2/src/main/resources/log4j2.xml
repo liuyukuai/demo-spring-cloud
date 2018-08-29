@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" monitorinterval="5">
+    <!--配置常量-->
+    <Properties>
+        <Property name="baseDir">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <!--文件会打印出所有信息，这个log每次运行程序会自动清空，由append属性决定，这个也挺有用的，适合临时测试用-->
+        <!--append = true : 保留启动前的日志，追加新日志，false： 清空原有日志-->
+        <File name="log" fileName="${baseDir}/all.log" append="true">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </File>
+
+        <RollingFile name="RollingFile_1" fileName="${baseDir}/logs_1/info.log"
+                     filePattern="${baseDir}/logs_1/$${date:yyyy-MM}/info-%d{yyyy-MM-dd HH-mm}-%i.log.gz">
+            <!--只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <!--4分钟rollover一次-->
+                <TimeBasedTriggeringPolicy interval="4"/>
+                <!--文件大小-->
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <!--文件数量-->
+            <DefaultRolloverStrategy max="3"/>
+
+        </RollingFile>
+
+        <!--删除历史日志文件-->
+        <RollingRandomessFile name="RollingFile_2" fileName="${baseDir}/logs_2/info.log"
+                              filePattern="${baseDir}/logs_2/$${date:yyyy-MM}/info-%d{yyyy-MM-dd HH-mm}-%i.log.gz">
+            <!--只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <!--1分钟rollover一次-->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!--文件大小-->
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <!--文件数量-->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${baseDir}/logs_2" maxDepth="2">
+                    <IfFileName glob="*/info-*.log.gz"/>
+                    <IfLastModified age="5m"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomessFile>
+        <!--pay-->
+        <RollingFile name="payRollingFile" fileName="${baseDir}/pay/info.log"
+                     filePattern="${baseDir}/pay/$${date:yyyy-MM}/info-%d{yyyy-MM-dd HH-mm}-%i.log.gz">
+            <!--只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <!--1分钟rollover一次-->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!--文件大小-->
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <!--文件数量-->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${baseDir}/pay" maxDepth="2">
+                    <IfFileName glob="*/info-*.log.gz"/>
+                    <IfLastModified age="5m"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <!--pay-->
+        <RollingFile name="bizRollingFile" fileName="${baseDir}/biz/info.log"
+                     filePattern="${baseDir}/biz/$${date:yyyy-MM}/info-%d{yyyy-MM-dd HH-mm}-%i.log.gz">
+            <!--只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <!--1分钟rollover一次-->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!--文件大小-->
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <!--文件数量-->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${baseDir}/biz" maxDepth="2">
+                    <IfFileName glob="*/info-*.log.gz"/>
+                    <IfLastModified age="5m"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+    <Loggers>
+        <Logger name="com.itxiaoer.logging.pay" level="trace" additivity="false">
+            <AppenderRef ref="payRollingFile"/>
+        </Logger>
+        <AsyncLogger name="com.itxiaoer.logging.biz" level="trace" additivity="false" includeLocation="true">
+            <AppenderRef ref="bizRollingFile"/>
+        </AsyncLogger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="log"/>
+            <AppenderRef ref="RollingFile_1"/>
+            <AppenderRef ref="RollingFile_2"/>
+        </Root>
+    </Loggers>
+</Configuration>
